@@ -1,3 +1,5 @@
+// This script is used ONLY to create new json vehicles
+
 package com.infinitedrive;
 
 import com.badlogic.gdx.Gdx;
@@ -9,15 +11,15 @@ import com.infinitedrive.objects.Vehicle;
 
 
 public class DataHandler {
-    public static Vehicle LoadPlayerVehicle(String name){
+    public static Vehicle loadPlayerVehicle(String name){
         Json json = new Json();
         FileHandle file = Gdx.files.local("Data\\PlayerVehicle\\" + name + ".json");
         String s = file.readString();
         return json.fromJson(Vehicle.class, s);
     }
 
-    public static void CreatePlayerVehicle(String name, float startingVelocity, float maxVelocity, float brakeDurability, int price, int width, int height, float sizeMultiplier, String texture){
-        Vehicle vehicle = new Vehicle(name, startingVelocity,maxVelocity, brakeDurability, price, width, height, sizeMultiplier, texture);
+    public static void createPlayerVehicle(String name, float startingVelocity, float maxVelocity, float accelleration, float brakeDurability, int price, int width, int height, float sizeMultiplier, String texture){
+        Vehicle vehicle = new Vehicle(name, startingVelocity,maxVelocity, accelleration, brakeDurability, price, width, height, sizeMultiplier, texture);
         Json json = new Json();
         String s = json.toJson(vehicle);
 
@@ -26,7 +28,7 @@ public class DataHandler {
 
     }
 
-    public static Array<NPCVehicle> LoadNPCVehicles(int nOfVehicle){
+    public static Array<NPCVehicle> loadNPCVehicles(int nOfVehicle){
         Array<NPCVehicle> vehicles = new Array<>();
         for(int i = 0; i< nOfVehicle; i++){
             Json json = new Json();
@@ -38,7 +40,7 @@ public class DataHandler {
         return vehicles;
     }
 
-    public static void CreateNPCVehicle(String name, int maxVelocity, int minVelocity, int width, int height, float sizeMultiplier, String texture){
+    public static void createNPCVehicle(String name, int maxVelocity, int minVelocity, int width, int height, float sizeMultiplier, String texture){
         NPCVehicle vehicle = new NPCVehicle(name,maxVelocity, minVelocity, width, height, sizeMultiplier, texture);
         Json json = new Json();
         String s = json.toJson(vehicle);

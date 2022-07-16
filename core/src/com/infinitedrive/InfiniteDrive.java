@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.infinitedrive.scene.GameScene;
+import com.infinitedrive.screens.GameScreen;
 
 public class InfiniteDrive extends Game {
 	public static InfiniteDrive INSTANCE;
@@ -39,7 +39,8 @@ public class InfiniteDrive extends Game {
 
 		//DataHandler.CreateNPCVehicle("NPCVehicle1", 40, 30, 29, 48, 1.5f, "Vehicles\\NPCVehicle1" );
 
-		this.setScreen(new GameScene(this));
+		//Load Game screen
+		this.setScreen(new GameScreen(this));
 	}
 
 	@Override

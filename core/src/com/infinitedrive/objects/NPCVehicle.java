@@ -5,10 +5,13 @@ public class NPCVehicle {
     protected String name;
     protected int maxVelocity;
     protected int minVelocity;
+
+    // Graphic
+    protected String texture;
     protected float width;
     protected float height;
     protected float sizeMultiplier;
-    protected String texture;
+
 
     public String getName() {
         return name;
@@ -29,7 +32,6 @@ public class NPCVehicle {
     public float getHeight() {
         return height;
     }
-
     public float getSizeMultiplier() {
         return sizeMultiplier;
     }
@@ -37,6 +39,7 @@ public class NPCVehicle {
     public String getTexturePath() {
         return texture;
     }
+
 
     public NPCVehicle(String name, int maxVelocity, int minVelocity, int width, int height, float sizeMultiplier, String texture) {
         this.name = name;
@@ -51,4 +54,8 @@ public class NPCVehicle {
     public NPCVehicle(){
 
     }
+
+
+
+
 }

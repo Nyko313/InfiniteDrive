@@ -26,21 +26,31 @@ public class StreetSpawner {
 
     public StreetSpawner(){
         batch = InfiniteDrive.INSTANCE.getBatch();
-        texture = new Texture("Street01.png");
+        texture = new Texture("Street.png");
         streetTiles = new Array<Rectangle>();
 
         sizeMultiplier = 1.8f;
-        size = new Vector2(100*sizeMultiplier, 50*sizeMultiplier);
+        size = new Vector2(100*sizeMultiplier, 100*sizeMultiplier);
         spawnPosition = new Vector2(InfiniteDrive.INSTANCE.getScreenWidth() / 2 - size.x / 2, InfiniteDrive.INSTANCE.getScreenHeight() + size.y);
 
         vehicle = Player.INSTANCE.getVehicle();
 
+        for(int i = 0; i < 10; i++){
+            Rectangle newStreet = new Rectangle();
+            newStreet.x = spawnPosition.x;
+            newStreet.y = spawnPosition.y - size.y * i;
+            newStreet.width = size.x;
+            newStreet.height = size.y;
+            streetTiles.add(newStreet);
+            lastStreetSpawned = newStreet;
+
+        }
         spawnStreet();
     }
 
     public void update(){
         // Spawn new tile
-        if(lastStreetSpawned.y < spawnPosition.y - size.y + 10){
+        if(lastStreetSpawned.y < spawnPosition.y - size.y + 5){
             spawnStreet();
         }
 
@@ -48,7 +58,7 @@ public class StreetSpawner {
         for(Iterator<Rectangle> iter = streetTiles.iterator(); iter.hasNext();){
             Rectangle street = iter.next();
             // Set the tile position
-            street.y -= vehicle.getStartingVelocity() * Const.VEHICLES_VELOCITY_MULTIPLIER * Gdx.graphics.getDeltaTime();
+            street.y -= Player.INSTANCE.getCurrentVelocity() * Const.VEHICLES_VELOCITY_MULTIPLIER * Gdx.graphics.getDeltaTime();
 
             // Delete tile when off screen
             if(street.y < 0 - size.y)

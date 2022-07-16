@@ -4,6 +4,7 @@ public class Vehicle {
     private String name;
     private float startingVelocity;
     private float maxVelocity;
+    private float acceleration;
     private float brakeDurability;
     private int price;
     private int width;
@@ -39,6 +40,10 @@ public class Vehicle {
         return maxVelocity;
     }
 
+    public float getAcceleration() {
+        return acceleration;
+    }
+
     public float getBrakeDurability() {
         return brakeDurability;
     }
@@ -47,7 +52,7 @@ public class Vehicle {
         return price;
     }
 
-    public Vehicle(String name, float startingVelocity, float maxVelocity, float brakeDurability, int price, int width, int height, float sizeMultiplier, String texture) {
+    public Vehicle(String name, float startingVelocity, float maxVelocity, float acceleration, float brakeDurability, int price, int width, int height, float sizeMultiplier, String texture) {
         this.name = name;
         this.startingVelocity = startingVelocity;
         this.maxVelocity = maxVelocity;
@@ -57,6 +62,7 @@ public class Vehicle {
         this.height = height;
         this.sizeMultiplier = sizeMultiplier;
         this.texture = texture;
+        this.acceleration = acceleration;
     }
 
     public Vehicle(){

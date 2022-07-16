@@ -1,11 +1,12 @@
 {
 name: Car1
-startingVelocity: 90
+startingVelocity: 60
 maxVelocity: 70
+acceleration: 0.5
 brakeDurability: 20
 price: 100
 width: 29
 height: 48
 sizeMultiplier: 1.3
-texture: Vehicles/car02.png
+texture: Vehicles\\car01.png
 }
