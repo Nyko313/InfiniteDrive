@@ -8,16 +8,16 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.infinitedrive.Const;
+import com.infinitedrive.Gameobject;
 import com.infinitedrive.InfiniteDrive;
 
 import java.util.Iterator;
 
-public class StreetSpawner {
+public class StreetSpawner extends Gameobject {
     private Vector2 spawnPosition;
     private Vector2 size;
-    private float sizeMultiplier;
+    private float sizeMultiplier = 1.8f;
     private Texture texture;
-    private SpriteBatch batch;
     private Array<Rectangle> streetTiles;
     private Rectangle lastStreetSpawned;
     private Player player;
@@ -25,11 +25,13 @@ public class StreetSpawner {
 
 
     public StreetSpawner(){
-        batch = InfiniteDrive.INSTANCE.getBatch();
+        super.renderPriority = 0;
+        initialize(this);
+
         texture = new Texture("Street.png");
         streetTiles = new Array<Rectangle>();
 
-        sizeMultiplier = 1.8f;
+
         size = new Vector2(100*sizeMultiplier, 100*sizeMultiplier);
         spawnPosition = new Vector2(InfiniteDrive.INSTANCE.getScreenWidth() / 2 - size.x / 2, InfiniteDrive.INSTANCE.getScreenHeight() + size.y);
 
@@ -50,7 +52,7 @@ public class StreetSpawner {
 
     public void update(){
         // Spawn new tile
-        if(lastStreetSpawned.y < spawnPosition.y - size.y + 5){
+        if(lastStreetSpawned.y < spawnPosition.y - size.y + 14){
             spawnStreet();
         }
 

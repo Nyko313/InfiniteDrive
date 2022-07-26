@@ -1,7 +1,7 @@
 {
 name: NPCVehicle3
 maxVelocity: 40
-minVelocity: 30
+minVelocity: 50
 width: 30
 height: 50
 sizeMultiplier: 1.3

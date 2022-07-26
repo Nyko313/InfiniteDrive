@@ -1,6 +1,6 @@
 {
 name: Car1
-startingVelocity: 60
+startingVelocity: 80
 maxVelocity: 70
 acceleration: 0.5
 brakeDurability: 20

@@ -1,15 +1,17 @@
 package com.infinitedrive.objects;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.infinitedrive.Const;
 import com.infinitedrive.DataHandler;
+import com.infinitedrive.Gameobject;
 import com.infinitedrive.InfiniteDrive;
 
 import java.util.Random;
 
-public class NPCVehicleSpawner{
+public class NPCVehicleSpawner extends Gameobject {
     public static NPCVehicleSpawner INSTANCE;
     private Random rand;
 
@@ -20,6 +22,8 @@ public class NPCVehicleSpawner{
     private int vehicleCounter;
     private float lastDistance;
     private float spawnDistance;
+    private int lastSpawnPos;
+    private int laneSpawnCounter = -1;
     private SpriteBatch batch;
     private World world;
 
@@ -29,6 +33,9 @@ public class NPCVehicleSpawner{
     }
 
     public NPCVehicleSpawner(World world) {
+        super.renderPriority = 2;
+        initialize(this);
+
         this.world = world;
         INSTANCE = this;
         rand = new Random();
@@ -40,13 +47,13 @@ public class NPCVehicleSpawner{
         vehicles = new Array<>();
         spawnDistance = Const.NPCVEHICLES_SPAWN_DISTANCE;
 
-        // Spawn first random vehicle
-        spawnVehicle(rand.nextInt(Const.NPCVEHICLES_QUANTITY));
+        // Spawn the first random vehicle
+        spawnVehicle();
     }
 
     public void update(){
-        if(Player.INSTANCE.getDistanceTraveled() - lastDistance > spawnDistance){
-            spawnVehicle(rand.nextInt(Const.NPCVEHICLES_QUANTITY));
+        if(Player.INSTANCE.getDistanceTraveled() - lastDistance > spawnDistance && vehicles.size < Const.MAX_NPCVEHICLES_IN_SCENE){
+            spawnVehicle();
         }
 
         for(int i = 0; i < vehicles.size; i++){
@@ -66,10 +73,23 @@ public class NPCVehicleSpawner{
     public void destroyVehicle(SpawnedNPCVehicle vehicle){
         world.destroyBody(vehicle.getBody());
         vehicles.removeValue(vehicle, false);
+        vehicleCounter--;
     }
 
-    private void spawnVehicle(int index){
-        SpawnedNPCVehicle vehicle = new SpawnedNPCVehicle(npcVehicles.get(index),world, spawnPos[new Random().nextInt(3)] + InfiniteDrive.INSTANCE.getScreenWidth() / 2f,InfiniteDrive.INSTANCE.getScreenHeight() + npcVehicles.get(index).getHeight());
+    private void spawnVehicle(){
+
+        int spawnPosition = spawnPos[new Random().nextInt(3)];
+        if(spawnPosition == lastSpawnPos && laneSpawnCounter >= Const.MAX_NPCVEHICLES_IN_LANE){
+            do{
+                spawnPosition = spawnPos[new Random().nextInt(3)];
+            }while(spawnPosition == lastSpawnPos);
+            laneSpawnCounter = 0;
+        }
+        lastSpawnPos = spawnPosition;
+        laneSpawnCounter ++;
+
+        spawnPosition += InfiniteDrive.INSTANCE.getScreenWidth() / 2f;
+        SpawnedNPCVehicle vehicle = new SpawnedNPCVehicle(npcVehicles.get(rand.nextInt(Const.NPCVEHICLES_QUANTITY)),world, spawnPosition,InfiniteDrive.INSTANCE.getScreenHeight() + npcVehicles.get(rand.nextInt(Const.NPCVEHICLES_QUANTITY)).getHeight());
 
         vehicles.add(vehicle);
         vehicle.getBody().setUserData(Integer.toString(vehicleCounter));

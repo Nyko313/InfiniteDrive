@@ -9,7 +9,9 @@ import com.infinitedrive.Const;
 
 public class SpawnedNPCVehicle extends NPCVehicle{
 
+    private NPCVehicleSpawner npcVehicleSpawner;
     private float currentVelocity;
+    private boolean isFlaggedForDelete;
 
     // Graphic
     private Texture texture;
@@ -45,6 +47,8 @@ public class SpawnedNPCVehicle extends NPCVehicle{
         this.texture = new Texture(vehicle.getTexturePath());
         this.world = world;
 
+        npcVehicleSpawner = NPCVehicleSpawner.INSTANCE;
+
         currentVelocity = minVelocity;
 
         createBody(posX, posY);
@@ -56,8 +60,18 @@ public class SpawnedNPCVehicle extends NPCVehicle{
 
         // Delete vehicle
         if(body.getPosition().y < -200){
-            NPCVehicleSpawner.INSTANCE.destroyVehicle(this);
+           destroy();
         }
+        if(isFlaggedForDelete){
+            if(!world.isLocked()){
+                NPCVehicleSpawner.INSTANCE.destroyVehicle(this);
+            }
+        }
+    }
+
+    public void destroy(){
+        isFlaggedForDelete = true;
+
     }
 
     // Create the rigid body
