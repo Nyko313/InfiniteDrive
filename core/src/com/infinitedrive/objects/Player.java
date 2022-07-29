@@ -1,20 +1,15 @@
 package com.infinitedrive.objects;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
-import com.infinitedrive.Const;
-import com.infinitedrive.DataHandler;
-import com.infinitedrive.Gameobject;
-import com.infinitedrive.InfiniteDrive;
-
-import java.text.DecimalFormat;
+import com.infinitedrive.*;
+import com.infinitedrive.helpers.BodyCreator;
+import com.infinitedrive.helpers.Const;
+import com.infinitedrive.helpers.DataHandler;
+import com.infinitedrive.objects.rocket.Rocket;
 
 public class Player extends Gameobject{
     public static Player INSTANCE;
@@ -31,7 +26,6 @@ public class Player extends Gameobject{
 
     private boolean crashed;
 
-    private Rocket rocket;
     private int rocketAmount = 3;
 
     // Graphics
@@ -45,11 +39,8 @@ public class Player extends Gameobject{
     public int getRocketAmount() {
         return rocketAmount;
     }
-    public Rocket getRocket() {
-        return rocket;
-    }
-    public void setRocket(Rocket rocket) {
-        this.rocket = rocket;
+    public void setRocketAmount(int rocketAmount) {
+        this.rocketAmount = rocketAmount;
     }
     public float getCurrentVelocity() {
         return currentVelocity;
@@ -69,13 +60,13 @@ public class Player extends Gameobject{
 
 
     public Player(World world){
-        super.renderPriority = 1;
+        renderPriority = 3;
         initialize(this);
 
         INSTANCE = this;
         this.world = world;
 
-        // Load a vehicle
+        // Load the vehicle
         vehicle = DataHandler.loadPlayerVehicle("Car1");
 
         // Sprite setup
@@ -87,21 +78,25 @@ public class Player extends Gameobject{
         targetVelocity = vehicle.getStartingVelocity() + 20;
         brakeDurability = vehicle.getBrakeDurability();
 
+        body = BodyCreator.createBoxBody(world, InfiniteDrive.INSTANCE.getScreenWidth() / 2, InfiniteDrive.INSTANCE.getScreenHeight() / 2,width,height,this,true, false);
 
-        createBody();
     }
 
+    @Override
     public void update(){
+
+
         if(!crashed){
             movement();
             brake();
+            shootRocket();
+            targetVelocity += 0.02f;
         }
-        if(!crashed) targetVelocity += 0.02f;
 
         // Update the travelled distance
         distanceTraveled += Gdx.graphics.getDeltaTime() * currentVelocity  * 0.2f;
 
-        // Smooth accelerate and decelerate
+        // Smooth accelerate/decelerate
         if(currentVelocity < targetVelocity && targetVelocity - currentVelocity <0.3f || currentVelocity > targetVelocity && currentVelocity - targetVelocity <0.3f){
             currentVelocity = targetVelocity;
         }
@@ -110,26 +105,35 @@ public class Player extends Gameobject{
             delta *= Gdx.graphics.getDeltaTime() * 2;
             currentVelocity += delta;
         }
-
-        shootRocket();
     }
 
+    @Override
     public void render(){
         // Texture render
         batch.draw(texture, body.getPosition().x - (width / 2), body.getPosition().y - (height / 2), width, height);
     }
 
+    @Override
     public void dispose(){
         texture.dispose();
     }
 
     public void crash(){
-        targetVelocity = 0;
-        crashed = true;
+        if(!crashed){
+            // Instantiate particles
+            new Particle(body.getPosition().x, body.getPosition().y, true, "explosion.party");
+            new Particle(body.getPosition().x, body.getPosition().y+30, true, "smoke.party");
+
+            // Set target velocity
+            targetVelocity = 0;
+
+            crashed = true;
+        }
+
     }
 
     private void movement(){
-        // Change lane when left or right button is pressed
+        // Switch lane when left/right button is pressed
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) && currentLane <2){
             currentLane++;
             body.setTransform(new Vector2(body.getPosition().x + Const.LANES_DISTANCE,body.getPosition().y),0);
@@ -140,6 +144,7 @@ public class Player extends Gameobject{
         }
     }
 
+    // Reduce player velocity
     private void brake(){
 
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN) && brakeDurability > 0.2f){
@@ -155,34 +160,11 @@ public class Player extends Gameobject{
         }
     }
 
-    // Create the rigid body
-    private void createBody(){
-        // Set up the body definition
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(InfiniteDrive.INSTANCE.getScreenWidth() / 2, InfiniteDrive.INSTANCE.getScreenHeight() / 2);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-
-        body = world.createBody(bodyDef);
-
-        // Create the fixture and the box shape
-        FixtureDef fixtureDef = new FixtureDef();
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width-17, height- 30);
-        fixtureDef.shape = shape;
-
-        body.createFixture(fixtureDef);
-        // Active body physic
-        body.setSleepingAllowed(false);
-        // Dispose unused shape
-        shape.dispose();
-        // Set a name for identification
-        body.setUserData("Player");
-    }
-
     private void shootRocket(){
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && rocket == null && rocketAmount>0)
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && rocketAmount>0)
         {
-            rocket = new Rocket(body.getPosition().x, body.getPosition().y + 50);
+            // Instantiate new rocket
+            new Rocket(body.getPosition().x, body.getPosition().y + 30);
             rocketAmount --;
         }
 

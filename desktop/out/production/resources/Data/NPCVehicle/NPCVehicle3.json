@@ -1,0 +1,9 @@
+{
+name: NPCVehicle3
+maxVelocity: 40
+minVelocity: 50
+width: 30
+height: 50
+sizeMultiplier: 1.3
+texture: Vehicles\\car03.png
+}

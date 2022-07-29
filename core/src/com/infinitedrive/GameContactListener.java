@@ -2,6 +2,9 @@ package com.infinitedrive;
 
 import com.badlogic.gdx.physics.box2d.*;
 import com.infinitedrive.objects.*;
+import com.infinitedrive.objects.npcvehicles.SpawnedNPCVehicle;
+import com.infinitedrive.objects.rocket.CollectableRocket;
+import com.infinitedrive.objects.rocket.Rocket;
 
 public class GameContactListener implements ContactListener {
 
@@ -18,12 +21,19 @@ public class GameContactListener implements ContactListener {
         fixtureA = contact.getFixtureA();
         fixtureB = contact.getFixtureB();
 
-        if(fixtureA.getBody().getUserData() == "Rocket" || fixtureB.getBody().getUserData() == "Rocket"){
+
+
+        if(compareColliderClass(Rocket.class) != null && compareColliderClass(SpawnedNPCVehicle.class) != null){
             NPCMissileCollision();
-        }else if(fixtureA.getBody().getUserData() != "Player" && fixtureB.getBody().getUserData() != "Player") {
+        }else if(fixtureA.getBody().getUserData().getClass() == SpawnedNPCVehicle.class && fixtureB.getBody().getUserData().getClass() == SpawnedNPCVehicle.class) {
             NPCCollision();
-        }else if(fixtureA.getBody().getUserData() == "Player" || fixtureB.getBody().getUserData() == "Player"){
+        }else if(compareColliderClass(Player.class) != null && compareColliderClass(SpawnedNPCVehicle.class) != null){
             playerNPCCollision();
+        }else if(compareColliderClass(Player.class) != null && compareColliderClass(CollectableRocket.class) != null){
+            if(Player.INSTANCE.getRocketAmount() <3){
+                playerPickableRocketCollison();
+            }
+
         }
 
     }
@@ -45,33 +55,31 @@ public class GameContactListener implements ContactListener {
 
     }
     private void NPCMissileCollision() {
-        Rocket rocket = Player.INSTANCE.getRocket();
-        if(fixtureA.getBody().getUserData() != "Rocket"){
-            vehicleA = FindNPCVehicle(fixtureA);
-        }else {
-            vehicleA = FindNPCVehicle(fixtureB);
-        }
+        vehicleA = (SpawnedNPCVehicle) compareColliderClass(SpawnedNPCVehicle.class).getBody().getUserData();
 
+        Rocket rocket = (Rocket) compareColliderClass(Rocket.class).getBody().getUserData();
         rocket.explode();
         vehicleA.destroy();
     }
     private void playerNPCCollision(){
-        Player.INSTANCE.crash();
-        if(fixtureA.getBody().getUserData() != "Player"){
-            vehicleA = FindNPCVehicle(fixtureA);
-        }else {
-            vehicleA = FindNPCVehicle(fixtureB);
-        }
+       vehicleA = (SpawnedNPCVehicle) compareColliderClass(SpawnedNPCVehicle.class).getBody().getUserData();
 
         if(vehicleA.getCurrentVelocity() > Player.INSTANCE.getCurrentVelocity()){
             vehicleA.setCurrentVelocity(0);
+        }else{
+            vehicleA.setCurrentVelocity(Player.INSTANCE.getCurrentVelocity());
         }
+        Player.INSTANCE.crash();
     }
 
     private void NPCCollision(){
         // Get the colliding bodies
-        vehicleA = FindNPCVehicle(fixtureA);
-        vehicleB = FindNPCVehicle(fixtureB);
+        vehicleA = (SpawnedNPCVehicle) compareColliderClass(SpawnedNPCVehicle.class).getBody().getUserData();
+        if(vehicleA == fixtureA.getBody().getUserData()){
+            vehicleB = (SpawnedNPCVehicle) fixtureB.getBody().getUserData();
+        }else{
+            vehicleA = (SpawnedNPCVehicle) fixtureB.getBody().getUserData();
+        }
 
         // Change the bodies velocity
         if(vehicleA.getCurrentVelocity() >= vehicleB.getCurrentVelocity()) {
@@ -79,6 +87,7 @@ public class GameContactListener implements ContactListener {
         }else{
             vehicleB.setCurrentVelocity(vehicleA.getCurrentVelocity());
         }
+
         /*      ALTERNATIVE COLLISION
         if(vehicleA.getCurrentVelocity() >= vehicleB.getCurrentVelocity()){
             vehicleA.setCurrentVelocity(vehicleB.getCurrentVelocity() - 2);
@@ -90,11 +99,18 @@ public class GameContactListener implements ContactListener {
         */
     }
 
-    private SpawnedNPCVehicle FindNPCVehicle(Fixture fixture){
-        for (SpawnedNPCVehicle vehicle :NPCVehicleSpawner.INSTANCE.getVehicles()) {
-            if(vehicle.getBody().getUserData() == fixture.getBody().getUserData()){
-                return vehicle;
-            }
+    private void playerPickableRocketCollison(){
+        CollectableRocket pickableRocket = (CollectableRocket) compareColliderClass(CollectableRocket.class).getBody().getUserData();
+        pickableRocket.destroy();
+
+        Player.INSTANCE.setRocketAmount(Player.INSTANCE.getRocketAmount() + 1);
+    }
+
+    private Fixture compareColliderClass(Class<?> cls){
+        if(fixtureA.getBody().getUserData().getClass().getName() == cls.getName()){
+            return fixtureA;
+        } else if (fixtureB.getBody().getUserData().getClass().getName() == cls.getName()) {
+            return fixtureB;
         }
         return null;
     }

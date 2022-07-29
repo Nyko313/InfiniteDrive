@@ -49,8 +49,9 @@ public class Gameobject {
     }
 
     public void destroy(){
-        GameobjectsManager.INSTANCE.destroyGameobject(this);
         isFlaggedForDelete = true;
+        dispose();
+        GameobjectsManager.INSTANCE.destroyGameobject(this);
     }
 
     public void dispose(){

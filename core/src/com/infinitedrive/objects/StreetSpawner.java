@@ -2,69 +2,72 @@ package com.infinitedrive.objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
-import com.infinitedrive.Const;
+import com.infinitedrive.helpers.Const;
 import com.infinitedrive.Gameobject;
 import com.infinitedrive.InfiniteDrive;
 
-import java.util.Iterator;
-
 public class StreetSpawner extends Gameobject {
     private Vector2 spawnPosition;
-    private Vector2 size;
     private float sizeMultiplier = 1.8f;
-    private Texture texture;
+
+    private float width = 100*sizeMultiplier;
+    private float height = 120*sizeMultiplier;
+
+    private Array<Texture> textures;
     private Array<Rectangle> streetTiles;
+    private Array<Texture> spawnedTilesTexture;
     private Rectangle lastStreetSpawned;
-    private Player player;
-    private Vehicle vehicle;
 
 
     public StreetSpawner(){
-        super.renderPriority = 0;
+        renderPriority = 1;
         initialize(this);
 
-        texture = new Texture("Street.png");
+        textures = new Array<>();
+        spawnedTilesTexture = new Array<>();
+
+        for(int i = 0; i < Const.STREET_TILES_QUANTITY; i++){
+            textures.add(new Texture("sprites/tiles/streetTile" + (i + 1) + ".png"));
+        }
         streetTiles = new Array<Rectangle>();
 
 
-        size = new Vector2(100*sizeMultiplier, 100*sizeMultiplier);
-        spawnPosition = new Vector2(InfiniteDrive.INSTANCE.getScreenWidth() / 2 - size.x / 2, InfiniteDrive.INSTANCE.getScreenHeight() + size.y);
-
-        vehicle = Player.INSTANCE.getVehicle();
+        spawnPosition = new Vector2(InfiniteDrive.INSTANCE.getScreenWidth() / 2 - width / 2, InfiniteDrive.INSTANCE.getScreenHeight() + height);
 
         for(int i = 0; i < 10; i++){
             Rectangle newStreet = new Rectangle();
             newStreet.x = spawnPosition.x;
-            newStreet.y = spawnPosition.y - size.y * i;
-            newStreet.width = size.x;
-            newStreet.height = size.y;
+            newStreet.y = spawnPosition.y - height * i;
+            newStreet.width = width;
+            newStreet.height = height;
             streetTiles.add(newStreet);
+            spawnedTilesTexture.add(textures.random());
             lastStreetSpawned = newStreet;
 
         }
         spawnStreet();
     }
 
+    @Override
     public void update(){
         // Spawn new tile
-        if(lastStreetSpawned.y < spawnPosition.y - size.y + 14){
+        if(lastStreetSpawned.y < spawnPosition.y - height + 50){
             spawnStreet();
         }
 
         // Update street tiles
-        for(Iterator<Rectangle> iter = streetTiles.iterator(); iter.hasNext();){
-            Rectangle street = iter.next();
+        for(int i = 0; i < streetTiles.size; i++){
             // Set the tile position
-            street.y -= Player.INSTANCE.getCurrentVelocity() * Const.VEHICLES_VELOCITY_MULTIPLIER * Gdx.graphics.getDeltaTime();
+            streetTiles.get(i).y -= Player.INSTANCE.getCurrentVelocity() * Const.VEHICLES_VELOCITY_MULTIPLIER * Gdx.graphics.getDeltaTime();
 
             // Delete tile when off screen
-            if(street.y < 0 - size.y)
-                iter.remove();
+            if(streetTiles.get(i).y < 0 - height){
+                streetTiles.removeIndex(i);
+                spawnedTilesTexture.removeIndex(i);
+            }
         }
     }
 
@@ -73,18 +76,25 @@ public class StreetSpawner extends Gameobject {
         Rectangle newStreet = new Rectangle();
         newStreet.x = spawnPosition.x;
         newStreet.y = spawnPosition.y;
-        newStreet.width = size.x;
-        newStreet.height = size.y;
+        newStreet.width = width;
+        newStreet.height = height;
         streetTiles.add(newStreet);
+        spawnedTilesTexture.add(textures.random());
         lastStreetSpawned = newStreet;
 
     }
 
+    @Override
     public void render(){
-         for(Rectangle street : streetTiles){
-             batch.draw(texture, street.x, street.y, street.width, street.height);
-         }
+        for(int i = 0; i < streetTiles.size; i++){
+            batch.draw(spawnedTilesTexture.get(i), streetTiles.get(i).x, streetTiles.get(i).y, width, height);
+        }
     }
 
-
+    @Override
+    public void dispose() {
+        for(Texture texture : textures){
+            texture.dispose();
+        }
+    }
 }

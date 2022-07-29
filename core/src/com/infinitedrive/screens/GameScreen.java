@@ -1,7 +1,6 @@
 package com.infinitedrive.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -11,19 +10,16 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.infinitedrive.DataHandler;
 import com.infinitedrive.GameContactListener;
 import com.infinitedrive.InfiniteDrive;
 import com.infinitedrive.objects.GameobjectsManager;
-import com.infinitedrive.objects.NPCVehicleSpawner;
+import com.infinitedrive.objects.TilesSpawner;
+import com.infinitedrive.objects.npcvehicles.NPCVehicleSpawner;
 import com.infinitedrive.objects.Player;
 import com.infinitedrive.objects.StreetSpawner;
-
-import java.util.Iterator;
 
 public class GameScreen implements Screen {
 
@@ -33,6 +29,7 @@ public class GameScreen implements Screen {
     private Player player;
     private StreetSpawner streetSpawner;
     private NPCVehicleSpawner npcVehicleSpawner;
+    private TilesSpawner tileSpawner;
 
     private int laneDistance;
     private World world;
@@ -47,12 +44,12 @@ public class GameScreen implements Screen {
 
     public GameScreen(final InfiniteDrive game){
         this.game = game;
-        backgroundSprite = new Texture("HUDBackground.png");
-        rocketTexture = new Texture("Missile.png");
+        backgroundSprite = new Texture("sprites/gui/hudBackground.png");
+        rocketTexture = new Texture("sprites/rocket.png");
 
         glyphLayout = new GlyphLayout();
         // Font setup
-        pixelFont = new BitmapFont(Gdx.files.internal("PixelatedFont.fnt"));
+        pixelFont = new BitmapFont(Gdx.files.internal("fonts/PixelatedFont.fnt"));
         pixelFont.getData().setScale(0.8f);
 
         // Physics setup
@@ -69,6 +66,7 @@ public class GameScreen implements Screen {
         gameobjectsManager = new GameobjectsManager(world, batch);
         this.player = new Player(world);
         this.streetSpawner = new StreetSpawner();
+        this.tileSpawner = new TilesSpawner();
         this.npcVehicleSpawner = new NPCVehicleSpawner(world);
     }
 
@@ -120,9 +118,21 @@ public class GameScreen implements Screen {
         pixelFont.draw(batch, String.format("%.0f", player.getCurrentVelocity()) + "km", InfiniteDrive.INSTANCE.getScreenWidth() / 2 -40, 120);
 
         // Rocket
-        if(Player.INSTANCE.getRocketAmount()>= 1) batch.draw(rocketTexture, 20, 20, 20, 55);
-        if(Player.INSTANCE.getRocketAmount()>= 2) batch.draw(rocketTexture, 40, 20, 20, 55);
-        if(Player.INSTANCE.getRocketAmount()>= 3) batch.draw(rocketTexture, 60, 20, 20, 55);
+        switch (Player.INSTANCE.getRocketAmount()){
+            case 1:
+                batch.draw(rocketTexture, 20, 20, 20, 55);
+                break;
+            case 2 :
+                batch.draw(rocketTexture, 20, 20, 20, 55);
+                batch.draw(rocketTexture, 40, 20, 20, 55);
+                break;
+            case 3:
+                batch.draw(rocketTexture, 20, 20, 20, 55);
+                batch.draw(rocketTexture, 40, 20, 20, 55);
+                batch.draw(rocketTexture, 60, 20, 20, 55);
+                break;
+        }
+
         batch.end();
 
         // Debug render
@@ -157,6 +167,9 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         gameobjectsManager.dispose();
-
+        world.dispose();
+        backgroundSprite.dispose();
+        rocketTexture.dispose();
+        pixelFont.dispose();
     }
 }

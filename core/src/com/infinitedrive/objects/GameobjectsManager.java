@@ -1,9 +1,6 @@
 package com.infinitedrive.objects;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.infinitedrive.Gameobject;
@@ -13,7 +10,7 @@ public class GameobjectsManager {
 
     private World world;
     private SpriteBatch batch;
-    private Array<Gameobject> gameobjects;
+    private final Array<Gameobject> gameobjects;
     private Array<Gameobject> gameobjectsToDestroy;
 
     public GameobjectsManager(World world, SpriteBatch batch){
@@ -25,12 +22,14 @@ public class GameobjectsManager {
 
     }
 
+
     public void initializeGameobject(Gameobject gameobject){
         gameobjects.add(gameobject);
+
         if(gameobject.getRenderPriority() == -1) gameobject.setRenderPriority(gameobjects.size);
-        System.out.println(gameobject.getRenderPriority());
         gameobject.setBatch(batch);
         gameobject.setWorld(world);
+
         sortRenderPriorities();
     }
 
@@ -39,6 +38,7 @@ public class GameobjectsManager {
             gameobjects.get(i).update();
         }
 
+        // Destroy the flagged gameobjects
         if(!world.isLocked()){
             for(int i = 0; i < gameobjectsToDestroy.size; i++){
                 if(gameobjectsToDestroy.get(i).getBody() != null){
@@ -52,6 +52,7 @@ public class GameobjectsManager {
     }
 
     public void render(){
+        // update the render methods
         for(int i = 0; i < gameobjects.size; i++){
             gameobjects.get(i).render();
         }
@@ -68,14 +69,13 @@ public class GameobjectsManager {
     }
 
     private void sortRenderPriorities(){
-        int n = gameobjects.size;
-        Gameobject tmp = null;
-        for(int i = 0; i < n; i++){
-            for(int x = 1; i < n - 1; i++){
-                if(gameobjects.get(x - 1).getRenderPriority() > gameobjects.get(x).getRenderPriority()){
-                    tmp = gameobjects.get(x - 1);
-                    gameobjects.set(x-1, gameobjects.get(x));
-                    gameobjects.set(x, tmp);
+        Gameobject tmp;
+        for(int i = 0; i < gameobjects.size; i++){
+            for (int x = 0; x < gameobjects.size - 1; x++){
+                if(gameobjects.get(x).getRenderPriority() > gameobjects.get(x + 1).getRenderPriority()){
+                    tmp = gameobjects.get(x);
+                    gameobjects.set(x, gameobjects.get(x + 1));
+                    gameobjects.set(x + 1, tmp);
                 }
             }
         }

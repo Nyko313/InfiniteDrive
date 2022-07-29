@@ -38,7 +38,7 @@ public class InfiniteDrive extends Game {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
 
-		//DataHandler.CreateNPCVehicle("NPCVehicle1", 40, 30, 29, 48, 1.5f, "Vehicles\\NPCVehicle1" );
+		//DataHandler.CreateNPCVehicle("NPCVehicle1", 40, 30, 29, 48, 1.5f, "vehicles\\NPCVehicle1" );
 
 		//Load Game screen
 		this.setScreen(new GameScreen(this));
@@ -47,7 +47,7 @@ public class InfiniteDrive extends Game {
 	@Override
 	public void render () {
 		super.render();
-		if(Gdx.input.isKeyPressed(Input.Keys.R) ){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.R) ){
 			create();
 		}
 	}
