@@ -5,5 +5,5 @@ minVelocity: 50
 width: 29
 height: 48
 sizeMultiplier: 1.3
-texture: Vehicles\\car01.png
+texture: sprites/vehicles/car01.png
 }
