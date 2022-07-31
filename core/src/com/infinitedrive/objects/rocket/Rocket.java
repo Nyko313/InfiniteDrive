@@ -2,6 +2,7 @@ package com.infinitedrive.objects.rocket;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.infinitedrive.SoundManager;
 import com.infinitedrive.helpers.BodyCreator;
 import com.infinitedrive.Gameobject;
 import com.infinitedrive.InfiniteDrive;
@@ -24,6 +25,7 @@ public class Rocket extends Gameobject {
 
     public void explode(){
         if(!isFlaggedForDelete){
+            SoundManager.INSTANCE.PlayExplosion();
             new Particle(body.getPosition().x, body.getPosition().y + 50, false, "explosion.party");
             destroy();
         }

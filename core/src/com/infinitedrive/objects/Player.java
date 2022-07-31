@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.infinitedrive.*;
 import com.infinitedrive.helpers.BodyCreator;
 import com.infinitedrive.helpers.Const;
@@ -25,6 +26,8 @@ public class Player extends Gameobject{
     private float brakeDurability;
 
     private boolean crashed;
+    private float timePassedAfterCrash = -1;
+    private boolean showCrashedText;
 
     private int rocketAmount = 3;
 
@@ -33,9 +36,9 @@ public class Player extends Gameobject{
     private float width;
     private float height;
 
-    // Physics
-    private Body body;
-
+    public boolean getShowCrashedText() {
+        return showCrashedText;
+    }
     public int getRocketAmount() {
         return rocketAmount;
     }
@@ -73,24 +76,27 @@ public class Player extends Gameobject{
         width = vehicle.getWidth() * vehicle.getSizeMultiplier();
         height = vehicle.getHeight() * vehicle.getSizeMultiplier();
         texture = new Texture(vehicle.getTexture());
-        batch = InfiniteDrive.INSTANCE.getBatch();
 
         targetVelocity = vehicle.getStartingVelocity() + 20;
         brakeDurability = vehicle.getBrakeDurability();
 
-        body = BodyCreator.createBoxBody(world, InfiniteDrive.INSTANCE.getScreenWidth() / 2, InfiniteDrive.INSTANCE.getScreenHeight() / 2,width,height,this,true, false);
+        super.body = BodyCreator.createBoxBody(world, InfiniteDrive.INSTANCE.getScreenWidth() / 2, InfiniteDrive.INSTANCE.getScreenHeight() / 2,width,height,this,true, false);
 
     }
 
     @Override
     public void update(){
-
+        SoundManager.INSTANCE.UpdatePlayerSound();
 
         if(!crashed){
             movement();
             brake();
             shootRocket();
             targetVelocity += 0.02f;
+        } else if (TimeUtils.nanoTime() - timePassedAfterCrash > 1000000000 && timePassedAfterCrash != -1) {
+            SoundManager.INSTANCE.PlayLose();
+            timePassedAfterCrash = -1;
+            showCrashedText = true;
         }
 
         // Update the travelled distance
@@ -119,7 +125,12 @@ public class Player extends Gameobject{
     }
 
     public void crash(){
+        SoundManager.INSTANCE.PlayCollision();
+
         if(!crashed){
+            SoundManager.INSTANCE.StopSong();
+            SoundManager.INSTANCE.PlayExplosion();
+
             // Instantiate particles
             new Particle(body.getPosition().x, body.getPosition().y, true, "explosion.party");
             new Particle(body.getPosition().x, body.getPosition().y+30, true, "smoke.party");
@@ -128,6 +139,8 @@ public class Player extends Gameobject{
             targetVelocity = 0;
 
             crashed = true;
+
+            timePassedAfterCrash = TimeUtils.nanoTime();
         }
 
     }
@@ -163,6 +176,7 @@ public class Player extends Gameobject{
     private void shootRocket(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && rocketAmount>0)
         {
+            SoundManager.INSTANCE.PlayShoot();
             // Instantiate new rocket
             new Rocket(body.getPosition().x, body.getPosition().y + 30);
             rocketAmount --;

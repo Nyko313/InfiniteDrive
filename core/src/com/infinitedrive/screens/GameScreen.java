@@ -3,6 +3,7 @@ package com.infinitedrive.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.infinitedrive.GameContactListener;
 import com.infinitedrive.InfiniteDrive;
+import com.infinitedrive.SoundManager;
 import com.infinitedrive.objects.*;
 import com.infinitedrive.objects.npcvehicles.NPCVehicleSpawner;
 
@@ -23,18 +25,17 @@ public class GameScreen implements Screen {
     final InfiniteDrive game;
     private OrthographicCamera camera;
     private SpriteBatch batch;
-    private Player player;
-    private StreetSpawner streetSpawner;
-    private NPCVehicleSpawner npcVehicleSpawner;
-    private TilesSpawner tileSpawner;
-    private HUD hud;
     private World world;
     private Box2DDebugRenderer b2dr;
     private GameobjectsManager gameobjectsManager;
+    private SoundManager soundManager;
 
-    public GameScreen(final InfiniteDrive game){
+    public GameScreen(InfiniteDrive game){
         this.game = game;
+    }
 
+    @Override
+    public void show(){
         // Physics setup
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new GameContactListener());
@@ -47,21 +48,18 @@ public class GameScreen implements Screen {
 
         //DataHandler.CreatePlayerVehicle("Car1", 60, 70, 0.1f, 20, 100, 29, 48, 1.5f,"Vehicles/car02.png");
         gameobjectsManager = new GameobjectsManager(world, batch);
-        this.player = new Player(world);
-        this.streetSpawner = new StreetSpawner();
-        this.tileSpawner = new TilesSpawner();
-        this.npcVehicleSpawner = new NPCVehicleSpawner(world);
-        this.hud = new HUD();
-    }
-
-    @Override
-    public void show(){
-
+        new Player(world);
+        new StreetSpawner();
+        new TilesSpawner();
+        new NPCVehicleSpawner(world);
+        new HUD();
+        this.soundManager = new SoundManager(game.getAppPreferences());
+        SoundManager.INSTANCE.PlaySong();
     }
 
     private void update(){
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
-            Gdx.app.exit();
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            game.LoadMenu();
         }
 
         gameobjectsManager.update();
@@ -79,18 +77,11 @@ public class GameScreen implements Screen {
 
         // Render
         batch.begin();
-
         gameobjectsManager.render();
-
-        // HUD render
-
-
         batch.end();
 
         // Debug render
         //b2dr.render(world,camera.combined);
-
-
 
         //Physics step
         world.step(delta, 6, 2);
@@ -118,8 +109,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        soundManager.dispose();
         gameobjectsManager.dispose();
-        world.dispose();
+
 
     }
 }

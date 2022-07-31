@@ -20,11 +20,10 @@ public class NPCVehicleSpawner extends Gameobject {
     private int vehicleCounter;
     private int vehicleCounterOnMissileSpawn;
     private float lastDistance;
-    private float spawnDistance;
+    private double spawnDistance;
     private int lastSpawnPos;
     private int laneSpawnCounter = -1;
-    private float spawnDistanceMultiplier = 2f;
-    private SpriteBatch batch;
+    private double spawnDistanceMultiplier = 2f;
     private World world;
 
     private Array<NPCVehicle> npcVehicles;
@@ -42,18 +41,17 @@ public class NPCVehicleSpawner extends Gameobject {
         this.world = world;
         INSTANCE = this;
         rand = new Random();
-        batch = InfiniteDrive.INSTANCE.getBatch();
         vehicles = new Array<>();
         spawnDistance = Const.NPCVEHICLES_SPAWN_DISTANCE;
 
         // Load all NPC vehicle
         npcVehicles = DataHandler.loadNPCVehicles(Const.NPCVEHICLES_QUANTITY);
-
-
-
     }
     @Override
     public void update(){
+
+
+
         // Spawn vehicle/collectable rocket
         if(Player.INSTANCE.getDistanceTraveled() - lastDistance > spawnDistance && vehicles.size < Const.MAX_NPCVEHICLES_IN_SCENE){
             // Spawn a rocket every 15 vehicle

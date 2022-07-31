@@ -37,14 +37,16 @@ public class HUD extends Gameobject {
     @Override
     public void render() {
         batch.draw(dashboard,0,0);
+
+        // Brakes
         batch.draw(brakesBar, 365, 17, brakesBarWidth, 16);
         batch.draw(dashboardBar, 0, 0);
-
 
         // Distance
         pixelFont.setColor(Color.WHITE);
         pixelFont.getData().setScale(0.5f, 0.5f);
         pixelFont.draw(batch,String.format("%.0f", Player.INSTANCE.getDistanceTraveled()), InfiniteDrive.INSTANCE.getScreenWidth() / 2  -40, 70);
+
         // Speed
         pixelFont.setColor(Color.WHITE);
         pixelFont.getData().setScale(0.8f, 0.8f);
@@ -64,6 +66,12 @@ public class HUD extends Gameobject {
                 batch.draw(rocketTexture, 50, 17, 13, 40);
                 batch.draw(rocketTexture, 73, 17, 13, 40);
                 break;
+        }
+
+        if(Player.INSTANCE.getShowCrashedText()){
+            pixelFont.draw(batch, "You crashed!", InfiniteDrive.INSTANCE.getScreenWidth() / 2 - 143, 725);
+            pixelFont.getData().setScale(0.55f, 0.6f);
+            pixelFont.draw(batch, "Press R to restart", InfiniteDrive.INSTANCE.getScreenWidth() / 2 - 150, 650);
         }
     }
 

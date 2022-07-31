@@ -64,7 +64,7 @@ public class GameContactListener implements ContactListener {
     private void playerNPCCollision(){
        vehicleA = (SpawnedNPCVehicle) compareColliderClass(SpawnedNPCVehicle.class).getBody().getUserData();
 
-        if(vehicleA.getCurrentVelocity() > Player.INSTANCE.getCurrentVelocity()){
+        if(vehicleA.getBody().getPosition().y < Player.INSTANCE.getBody().getPosition().y){
             vehicleA.setCurrentVelocity(0);
         }else{
             vehicleA.setCurrentVelocity(Player.INSTANCE.getCurrentVelocity());
@@ -100,6 +100,7 @@ public class GameContactListener implements ContactListener {
     }
 
     private void playerPickableRocketCollison(){
+        SoundManager.INSTANCE.PlayRocketCollected();
         CollectableRocket pickableRocket = (CollectableRocket) compareColliderClass(CollectableRocket.class).getBody().getUserData();
         pickableRocket.destroy();
 

@@ -3,11 +3,12 @@ package com.infinitedrive.objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.infinitedrive.AppPreferences;
 import com.infinitedrive.Gameobject;
+import com.infinitedrive.SoundManager;
 
 public class GameobjectsManager {
     public static GameobjectsManager INSTANCE;
-
     private World world;
     private SpriteBatch batch;
     private final Array<Gameobject> gameobjects;
