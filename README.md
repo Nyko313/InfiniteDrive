@@ -1,7 +1,7 @@
 # InfiniteDrive
 ## Controls
 
-- <kbd>←</kbd>/<kbd>→</kbd> for **move left**/**move right**
-- <kbd>↓</kbd> for **use brakes**
-- <kbd>space</kbd> for **shoot rocket**
+- <kbd>←</kbd>/<kbd>→</kbd> for **move left**/**right**
+- <kbd>↓</kbd> for **brakes**
+- <kbd>space</kbd> for **rocket**
 - <kbd>r</kbd> for **reload scene**
